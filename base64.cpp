@@ -83,27 +83,54 @@ void Write_File_In_Base64(std::string& filename, std::string& Base64Text){
     file.close();
 }
 
-int main(){
+std::string Read_And_Encode_Base64(const std:: string filename){
+    
+    std::vector<char> data = read_file(filename);
+    
+    if(data.empty()) return "";
+    return encode_base64(data);    
+}
+
+int main(int argc, char* argv[]){
    
     init_base64_index_table();
-   
-    std::string filename;
-
-    std::cin >> filename;
-    //std::string filename = "README.md";  
     
-    std::vector<char> BinaryData = read_file(filename);
-
-    if(BinaryData.empty()){
-        std::cerr<<"Error: Failed to read binary file";
-        return 1;
+    if (argc < 3) {
+            std::cerr << "Usage:\n"
+                      << "./run -f <filename>         # Overwrite file with Base64\n"
+                      << "./run -f <infile> <outfile> # Encode infile to outfile\n"
+                      << "./run -c <filename>         # Print Base64 to stdout\n";
+            return 1;
     }
 
-    std::string Base64Encoded = encode_base64(BinaryData);
+    std::string mode = argv[1];
 
-    Write_File_In_Base64(filename, Base64Encoded);
-
-    std::cout << "Successfully encoded in to Base64 and overwritten"<<std::endl;
+    if(mode == "-f" && argc == 3){
+        std::string filename = argv[2];
+        std::string encoded = Read_And_Encode_Base64(filename);
+        if(encoded.empty()) return 1;
+        Write_File_In_Base64(filename,encoded);
+        std::cout<<"Overwritten "<<filename<<" with base64 content.\n";
+    }
+    else if(mode == "-c" && argc == 3){
+        std::string filename = argv[2];
+        std::string encoded = Read_And_Encode_Base64(filename);
+        if(encoded.empty()) return 1;
+        std::cout<<encoded<<'\n';
+    }
+    else if(mode == "-f" && argc == 4){
+        
+        std::string infile  = argv[2];
+        std::string outfile = argv[3];
+        std::string encoded = Read_And_Encode_Base64(infile);
+        if(encoded.empty()) return 1;
+        Write_File_In_Base64(outfile,encoded);
+        std::cout<<"Written "<< outfile <<" with base64 content.\n";
+    }
+    else {
+        std::cerr << "Invalid arguments.\n";
+        return 1;
+    }
     return 0;
 }
 
