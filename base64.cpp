@@ -41,7 +41,7 @@ std::vector<char> read_file(const std::string& filename){
     return buffer;
 }
 
-std::vector<char> encoded_base64(std::vector<char> data){
+std::string encode_base64(std::vector<char> data){
 
     std::string encoded;
     int val = 0;
@@ -52,12 +52,10 @@ std::vector<char> encoded_base64(std::vector<char> data){
         val = (val << 8) + c;
         valb += 8;
 
-    }
-    
-    while(valb>=0){
-        int index = (val >> valb) & 0x3F;
-        encoded += base64[index];
-        valb -= 6;
+        while(valb>=0){
+            int index = (val >> valb) & 0x3F;
+            encoded += base64[index];
+            valb -= 6;}
     }
 
     if (valb > - 6){
@@ -65,16 +63,25 @@ std::vector<char> encoded_base64(std::vector<char> data){
         encoded += base64[index];
     }
 
-    while(encode.size() % 4){
+    while(encoded.size() % 4){
         encoded += '=';
     }
 
     return encoded;
 }
 
+void Write_File_In_Base64(std::string& filename, std::string& Base64Text){
+   
+    std::ofstream file(filename,std::ios::trunc);
+    
+    if(!file){
+        std::cerr<<"Error: writing to file\n" ;
+        return;
+    }
 
-
-
+    file << Base64Text;
+    file.close();
+}
 
 int main(){
    
@@ -85,13 +92,18 @@ int main(){
     std::cin >> filename;
     //std::string filename = "README.md";  
     
-    std::vector<char> binaryData = read_file(filename);
+    std::vector<char> BinaryData = read_file(filename);
 
-    std::cout << "Read " << binaryData.size() << " bytes.\n";
-
-    for (size_t i = 0; i < std::min(binaryData.size(), size_t(10)); ++i) {
-        printf("%02X ", static_cast<unsigned char>(binaryData[i]));
+    if(BinaryData.empty()){
+        std::cerr<<"Error: Failed to read binary file";
+        return 1;
     }
-    std::cout << std::endl;
+
+    std::string Base64Encoded = encode_base64(BinaryData);
+
+    Write_File_In_Base64(filename, Base64Encoded);
+
+    std::cout << "Successfully encoded in to Base64 and overwritten"<<std::endl;
+    return 0;
 }
 
