@@ -2,11 +2,6 @@
 
 A **manual** implementation of the Base64 encoding algorithm written in **C++**. This tool reads the contents of a file and encodes it into Base64 format **without using any external libraries**.
 
-> ⚠️ This project only supports encoding to Base64 (not decoding).  
-> Designed for learning purposes and simple use cases.
-
----
-
 ## 🚀 Features
 
 - ✅ Manually constructs the Base64 encoding table using ASCII.
